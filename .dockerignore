@@ -1,0 +1,16 @@
+.git
+.gitignore
+.mypy_cache
+.pytest_cache
+.venv
+__pycache__
+*.py[cod]
+.env
+.env.*
+!.env.example
+coverage.xml
+htmlcov
+tests
+requirements-dev.txt
+contracts
+README.md
