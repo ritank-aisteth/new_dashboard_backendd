@@ -1,5 +1,6 @@
 """Verified Cognito authentication and DynamoDB-backed dashboard authorization."""
 
+import logging
 import os
 from functools import lru_cache
 from ipaddress import ip_address
@@ -13,6 +14,13 @@ from fastapi import HTTPException, Request, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
 from pydantic import BaseModel, ConfigDict, Field
+
+
+logger = logging.getLogger(__name__)
+
+
+def _exception_type(error: BaseException) -> str:
+    return f"{type(error).__module__}.{type(error).__name__}"
 
 
 
@@ -77,7 +85,15 @@ def _unauthorized() -> HTTPException:
 def verified_claims(credentials: HTTPAuthorizationCredentials | None) -> dict[str, object]:
     if credentials is None or credentials.scheme.casefold() != "bearer" or not credentials.credentials:
         raise _unauthorized()
-    settings = authentication_settings()
+    try:
+        settings = authentication_settings()
+    except RuntimeError as error:
+        logger.exception(
+            "Cognito authentication configuration failed: exception_type=%s message=%s",
+            _exception_type(error),
+            str(error),
+        )
+        raise
     token = credentials.credentials
     try:
         key = jwks_client().get_signing_key_from_jwt(token).key
@@ -90,6 +106,11 @@ def verified_claims(credentials: HTTPAuthorizationCredentials | None) -> dict[st
             options={"require": ["exp", "iat", "iss", "sub", "token_use", "aud"]},
         )
     except jwt.PyJWTError as error:
+        logger.warning(
+            "Cognito token validation failed: exception_type=%s message=%s",
+            _exception_type(error),
+            str(error),
+        )
         raise _unauthorized() from error
     if claims.get("token_use") != "id":
         raise _unauthorized()
@@ -120,6 +141,24 @@ def _role_record(login: str, settings: AuthenticationSettings) -> dict[str, obje
             ConsistentRead=True,
         )
     except (BotoCoreError, ClientError) as error:
+        if isinstance(error, ClientError):
+            error_details = error.response.get("Error", {})
+            logger.exception(
+                "DynamoDB role lookup failed: exception_type=%s error_code=%s message=%s table=%s region=%s",
+                _exception_type(error),
+                error_details.get("Code", "unknown"),
+                error_details.get("Message", "unknown"),
+                settings.user_roles_table,
+                settings.region,
+            )
+        else:
+            logger.exception(
+                "DynamoDB role lookup failed: exception_type=%s message=%s table=%s region=%s",
+                _exception_type(error),
+                str(error),
+                settings.user_roles_table,
+                settings.region,
+            )
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Authorization service is temporarily unavailable") from error
     records = response.get("Items", [])
     if not isinstance(records, list) or len(records) != 1 or not isinstance(records[0], dict):
