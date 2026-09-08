@@ -6,8 +6,8 @@ from uuid import uuid4
 
 from pydantic import JsonValue
 
-from backend_dashboard.schemas import LocationSummary, OnboardingAcceptedResponse, OrganizationCreateRequest, OrganizationSummary, ProviderCreateRequest, ProviderSummary, SubscriptionRenewalResponse, SubscriptionStatus
-from backend_dashboard.schemas.common import GeoPoint, RecordStatus
+from schemas import LocationSummary, OnboardingAcceptedResponse, OrganizationCreateRequest, OrganizationSummary, ProviderCreateRequest, ProviderSummary, SubscriptionRenewalResponse, SubscriptionStatus
+from schemas.common import GeoPoint, RecordStatus
 
 from .elasticsearch import ElasticsearchGateway, JsonObject, as_object, number_value, parse_date, string_value
 from .dynamodb import DynamoDBGateway

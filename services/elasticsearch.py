@@ -10,8 +10,8 @@ from urllib.parse import parse_qsl, quote, urlencode
 import httpx
 from pydantic import JsonValue, TypeAdapter
 
-from backend_dashboard.schemas import BreakdownItem, DateRange, MetricPoint, MurmurBreakdown, PatientBreakdown
-from backend_dashboard.settings import DashboardSettings
+from schemas import BreakdownItem, DateRange, MetricPoint, MurmurBreakdown, PatientBreakdown
+from settings import DashboardSettings
 
 JsonObject = dict[str, JsonValue]
 JSON_OBJECT = TypeAdapter(JsonObject)

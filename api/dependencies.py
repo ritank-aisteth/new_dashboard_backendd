@@ -6,8 +6,8 @@ from typing import Annotated
 
 from fastapi import HTTPException, Query, status
 
-from backend_dashboard.schemas import DateRange
-from backend_dashboard.services import (
+from schemas import DateRange
+from services import (
     ConfiguredDashboardRepository,
     ConfiguredDashboardService,
     DashboardService,
@@ -17,7 +17,7 @@ from backend_dashboard.services import (
     MockDashboardRepository,
     SummaryReportExporter,
 )
-from backend_dashboard.settings import load_settings
+from settings import load_settings
 
 DATA_MODE = os.getenv("DASHBOARD_DATA_MODE", "configured").casefold()
 

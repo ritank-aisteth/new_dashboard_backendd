@@ -2,7 +2,7 @@
 
 from datetime import date, datetime, timedelta, timezone
 
-from backend_dashboard.schemas import (
+from schemas import (
     ActivitySummary,
     AihBuddyOverviewResponse,
     BackupHealth,

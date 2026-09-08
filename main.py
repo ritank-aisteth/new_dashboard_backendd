@@ -1,7 +1,6 @@
 """FastAPI application entry point for the schema-first dashboard service."""
 
 import os
-import sys
 from collections.abc import Awaitable, Callable
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
@@ -19,16 +18,9 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import Response
 from starlette.staticfiles import StaticFiles
 
-# Support both documented startup styles:
-# - from the package parent: uvicorn backend_dashboard.main:app
-# - from this directory:     uvicorn main:app
-PACKAGE_PARENT = Path(__file__).resolve().parent.parent
-if str(PACKAGE_PARENT) not in sys.path:
-    sys.path.insert(0, str(PACKAGE_PARENT))
-
-from backend_dashboard.api.routes import router
-from backend_dashboard.schemas import ApiError, HealthResponse
-from backend_dashboard.services import ExternalServiceError, ResourceNotFoundError
+from api.routes import router
+from schemas import ApiError, HealthResponse
+from services import ExternalServiceError, ResourceNotFoundError
 
 API_VERSION = "0.1.0"
 OPENAPI_VERSION = "3.0.3"

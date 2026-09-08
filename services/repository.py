@@ -3,7 +3,7 @@
 from datetime import date, datetime, timezone
 from uuid import uuid4
 
-from backend_dashboard.schemas import (
+from schemas import (
     LocationSummary,
     OnboardingAcceptedResponse,
     OrganizationCreateRequest,
@@ -13,7 +13,7 @@ from backend_dashboard.schemas import (
     SubscriptionRenewalResponse,
     SubscriptionStatus,
 )
-from backend_dashboard.schemas.common import GeoPoint, RecordStatus
+from schemas.common import GeoPoint, RecordStatus
 
 
 class ResourceNotFoundError(LookupError):

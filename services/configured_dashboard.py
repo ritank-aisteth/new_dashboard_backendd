@@ -1,6 +1,6 @@
 """Dashboard aggregation backed by configured Elasticsearch queries."""
 
-from backend_dashboard.schemas import DashboardMetric, DashboardMetricKey, DateRange, MetricPoint, ScopedDashboardResponse
+from schemas import DashboardMetric, DashboardMetricKey, DateRange, MetricPoint, ScopedDashboardResponse
 
 from .dashboard import DashboardService
 from .elasticsearch import ElasticsearchGateway, JsonObject

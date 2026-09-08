@@ -5,10 +5,10 @@ from datetime import date
 from typing import Any
 from unittest.mock import patch
 
-from backend_dashboard.schemas import OrganizationCreateRequest, ProviderCreateRequest
-from backend_dashboard.schemas.common import GeoPoint
-from backend_dashboard.services.configured_repository import ConfiguredDashboardRepository
-from backend_dashboard.services.report_export import SummaryReportExporter
+from schemas import OrganizationCreateRequest, ProviderCreateRequest
+from schemas.common import GeoPoint
+from services.configured_repository import ConfiguredDashboardRepository
+from services.report_export import SummaryReportExporter
 
 
 class CapturingDynamoDB:
@@ -82,7 +82,7 @@ class WriteAndExportServiceTests(unittest.TestCase):
     def test_repeated_exports_each_execute_delivery(self) -> None:
         exporter = SummaryReportExporter()
         with patch.dict("os.environ", {"LEGACY_DASHBOARD_CONFIG_PATH": "configured"}), patch(
-            "backend_dashboard.services.report_export.generate_and_email_summary", return_value=12
+            "services.report_export.generate_and_email_summary", return_value=12
         ) as deliver:
             first = exporter.enqueue(["org-1"], "admin@example.invalid", date(2026, 1, 1), date(2026, 8, 25), "Custom")
             second = exporter.enqueue(["org-1"], "admin@example.invalid", date(2026, 1, 1), date(2026, 8, 25), "Custom")

@@ -8,10 +8,10 @@ from fastapi.testclient import TestClient
 
 os.environ["DASHBOARD_DATA_MODE"] = "synthetic"
 
-from backend_dashboard.auth import AuthenticatedDashboardUser, require_dashboard_access
-from backend_dashboard.api.dependencies import get_summary_report_exporter
-from backend_dashboard.main import app
-from backend_dashboard.schemas import (
+from auth import AuthenticatedDashboardUser, require_dashboard_access
+from api.dependencies import get_summary_report_exporter
+from main import app
+from schemas import (
     AihBuddyOverviewResponse,
     DashboardOverviewResponse,
     HealthResponse,
@@ -24,7 +24,7 @@ from backend_dashboard.schemas import (
     SummaryExportAcceptedResponse,
     SubscriptionRenewalResponse,
 )
-from backend_dashboard.services import SummaryReportExporter
+from services import SummaryReportExporter
 
 
 class CapturingReportExporter(SummaryReportExporter):

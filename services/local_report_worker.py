@@ -17,7 +17,7 @@ from typing import Any
 
 import httpx
 
-from backend_dashboard.settings import load_settings
+from settings import load_settings
 
 logger = logging.getLogger(__name__)
 def _legacy_environment() -> dict[str, str]:

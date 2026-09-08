@@ -6,7 +6,7 @@ from typing import Any
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
-from backend_dashboard.settings import DashboardSettings
+from settings import DashboardSettings
 
 from .elasticsearch import ExternalServiceError
 

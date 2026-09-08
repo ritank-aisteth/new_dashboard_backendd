@@ -4,7 +4,7 @@ import os
 
 import httpx
 
-from backend_dashboard.schemas import OrganizationCreateRequest, ProviderCreateRequest
+from schemas import OrganizationCreateRequest, ProviderCreateRequest
 
 from .elasticsearch import ExternalServiceError
 

@@ -4,9 +4,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
-from backend_dashboard.api.dependencies import get_dashboard_service, get_repository, get_summary_report_exporter, resolve_date_range
-from backend_dashboard.auth import AuthenticatedDashboardUser, require_dashboard_access
-from backend_dashboard.schemas import (
+from api.dependencies import get_dashboard_service, get_repository, get_summary_report_exporter, resolve_date_range
+from auth import AuthenticatedDashboardUser, require_dashboard_access
+from schemas import (
     AihBuddyOverviewResponse,
     DashboardOverviewResponse,
     DateRange,
@@ -25,8 +25,8 @@ from backend_dashboard.schemas import (
     SubscriptionRenewalRequest,
     SubscriptionRenewalResponse,
 )
-from backend_dashboard.schemas.common import RecordStatus
-from backend_dashboard.services import DashboardService, MockDashboardRepository, ReportExportUnavailableError, SummaryReportExporter
+from schemas.common import RecordStatus
+from services import DashboardService, MockDashboardRepository, ReportExportUnavailableError, SummaryReportExporter
 
 router = APIRouter(prefix="/api/v1", dependencies=[Depends(require_dashboard_access)])
 
