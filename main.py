@@ -24,6 +24,10 @@ from services import ExternalServiceError, ResourceNotFoundError
 
 API_VERSION = "0.1.0"
 OPENAPI_VERSION = "3.0.3"
+DEFAULT_ALLOWED_HOSTS = (
+    "localhost,127.0.0.1,testserver,"
+    "aisteth-backend-586282894333.asia-south1.run.app,*.run.app"
+)
 SWAGGER_ASSET_PATH = str(files("swagger_ui_bundle").joinpath("vendor", "swagger-ui-4.15.5"))
 LOCAL_STATIC_PATH = Path(__file__).resolve().parent / "static"
 
@@ -66,7 +70,10 @@ app = FastAPI(
 app.openapi_version = OPENAPI_VERSION
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=_csv_environment("DASHBOARD_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver"))
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=_csv_environment("DASHBOARD_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS),
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_csv_environment("DASHBOARD_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"),
