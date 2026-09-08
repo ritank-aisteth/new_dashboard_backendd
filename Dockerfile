@@ -1,24 +1,34 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.13-slim AS runtime
+FROM python:3.12-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PORT=8080
-
+# Application directory
 WORKDIR /app
 
-RUN addgroup --system --gid 1001 app \
-    && adduser --system --uid 1001 --ingroup app app
+# Python / Cloud Run environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8080
 
-COPY requirements.txt ./requirements.txt
-RUN python -m pip install --upgrade pip \
-    && python -m pip install --requirement requirements.txt
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        gcc \
+        libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY --chown=app:app . ./backend_dashboard
+# Install Python dependencies first for better Docker caching
+COPY requirements.txt ./
 
-USER app
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Copy backend source code
+COPY . .
+
+# Cloud Run sends traffic to this port
 EXPOSE 8080
 
-CMD ["sh", "-c", "exec uvicorn backend_dashboard.main:app --host 0.0.0.0 --port ${PORT:-8080} --proxy-headers --forwarded-allow-ips='*'"]
+# Start FastAPI
+# Cloud Run requires 0.0.0.0 and uses the PORT environment variable
+CMD ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT}"]
