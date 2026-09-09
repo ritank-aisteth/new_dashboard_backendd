@@ -136,10 +136,15 @@ class DashboardApiTests(unittest.TestCase):
         self.assertEqual(document["info"]["title"], "AiSteth Dashboard API")
         self.assertIn("/api/v1/dashboard/overview", document["paths"])
         self.assertIn("/api/v1/onboarding/providers", document["paths"])
-        self.assertIn("CognitoAccessToken", document["components"]["securitySchemes"])
+        self.assertIn("CognitoIdToken", document["components"]["securitySchemes"])
+        self.assertEqual(document["components"]["securitySchemes"]["CognitoIdToken"]["scheme"], "bearer")
+        login_operation = document["paths"]["/api/v1/auth/me"]["post"]
+        login_schema = login_operation["requestBody"]["content"]["application/json"]["schema"]
+        login_schema_name = login_schema["$ref"].rsplit("/", maxsplit=1)[-1]
+        self.assertEqual(set(document["components"]["schemas"][login_schema_name]["properties"]), {"email", "password"})
         self.assertEqual(
             document["paths"]["/api/v1/dashboard/overview"]["get"]["security"],
-            [{"CognitoAccessToken": []}],
+            [{"CognitoIdToken": []}],
         )
         self.assertIn("/api/v1/reports/summary", document["paths"])
 

@@ -18,7 +18,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import Response
 from starlette.staticfiles import StaticFiles
 
-from api.routes import router
+from api.routes import auth_router, router
 from schemas import ApiError, HealthResponse
 from services import ExternalServiceError, ResourceNotFoundError
 
@@ -130,6 +130,7 @@ def health() -> HealthResponse:
     return HealthResponse(status="ok", service="aisteth-dashboard-api", version=API_VERSION, integration_mode="server-managed", timestamp=datetime.now(timezone.utc))
 
 
+app.include_router(auth_router)
 app.include_router(router)
 
 

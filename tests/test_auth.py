@@ -10,7 +10,7 @@ from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from jwt.exceptions import PyJWKClientConnectionError
 
-from auth import AuthenticationSettings, _role_record, authentication_settings, verified_claims
+from auth import AuthenticationSettings, _role_record, authenticate_with_password, authentication_settings, verified_claims
 
 
 SETTINGS = AuthenticationSettings(
@@ -50,6 +50,19 @@ class AuthenticationFailureTests(unittest.TestCase):
             with self.assertRaises(HTTPException) as raised:
                 verified_claims(HTTPAuthorizationCredentials(scheme="Bearer", credentials="redacted"))
         self.assertEqual(raised.exception.status_code, 401)
+
+    def test_password_authentication_returns_id_token_for_swagger(self) -> None:
+        client = Mock()
+        client.initiate_auth.return_value = {"AuthenticationResult": {"IdToken": "id-token", "ExpiresIn": 3600}}
+        with patch("auth.authentication_settings", return_value=SETTINGS), patch("auth.boto3.client", return_value=client):
+            token = authenticate_with_password("admin@example.invalid", "redacted-password")
+        self.assertEqual(token.access_token, "id-token")
+        self.assertEqual(token.token_type, "bearer")
+        client.initiate_auth.assert_called_once_with(
+            AuthFlow="USER_PASSWORD_AUTH",
+            AuthParameters={"USERNAME": "admin@example.invalid", "PASSWORD": "redacted-password"},
+            ClientId="test-client",
+        )
 
     def test_missing_aws_credentials_becomes_503(self) -> None:
         with patch("auth.boto3.resource", side_effect=NoCredentialsError()), self.assertRaises(HTTPException) as raised:

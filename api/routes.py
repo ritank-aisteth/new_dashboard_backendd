@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 from api.dependencies import get_dashboard_service, get_repository, get_summary_report_exporter, resolve_date_range
-from auth import AuthenticatedDashboardUser, require_dashboard_access
+from auth import AuthenticatedDashboardUser, CognitoLoginRequest, CognitoTokenResponse, authenticate_with_password, require_dashboard_access
 from schemas import (
     AihBuddyOverviewResponse,
     DashboardOverviewResponse,
@@ -28,6 +28,7 @@ from schemas import (
 from schemas.common import RecordStatus
 from services import DashboardService, MockDashboardRepository, ReportExportUnavailableError, SummaryReportExporter
 
+auth_router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 router = APIRouter(prefix="/api/v1", dependencies=[Depends(require_dashboard_access)])
 
 Service = Annotated[DashboardService, Depends(get_dashboard_service)]
@@ -35,6 +36,16 @@ Repository = Annotated[MockDashboardRepository, Depends(get_repository)]
 ReportRange = Annotated[DateRange, Depends(resolve_date_range)]
 DashboardUser = Annotated[AuthenticatedDashboardUser, Depends(require_dashboard_access)]
 ReportExporter = Annotated[SummaryReportExporter, Depends(get_summary_report_exporter)]
+
+
+@auth_router.post(
+    "/me",
+    response_model=CognitoTokenResponse,
+    summary="Sign in with Cognito",
+    description="Sign in with exactly an email and password, then paste the returned ID token into Swagger Authorize.",
+)
+def cognito_login(payload: CognitoLoginRequest) -> CognitoTokenResponse:
+    return authenticate_with_password(payload.email, payload.password.get_secret_value())
 
 
 def tenant_scope(user: AuthenticatedDashboardUser) -> str | None:
