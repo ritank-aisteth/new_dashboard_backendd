@@ -5,6 +5,7 @@
 .env
 .env.*
 !.env.example
+backend-env.yaml
 
 __pycache__
 *.py[cod]

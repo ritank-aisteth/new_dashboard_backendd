@@ -35,6 +35,8 @@ steps:
       - '--port'
       - '8080'
       - '--no-invoker-iam-check'
+      - '--env-vars-file'
+      - 'backend-env.yaml'
 
 # ============================================================
 # Store built image in Artifact Registry

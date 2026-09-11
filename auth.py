@@ -14,6 +14,7 @@ from fastapi import HTTPException, Request, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from settings import load_settings
 
 
 logger = logging.getLogger(__name__)
@@ -68,7 +69,7 @@ bearer_scheme = HTTPBearer(auto_error=False, scheme_name="CognitoIdToken")
 
 def _required_environment(name: str) -> str:
     value = os.getenv(name, "").strip()
-    if not value or "CHANGE_ME" in value:
+    if not value or "CHANGE_ME" in value or "YOUR_" in value:
         raise RuntimeError(f"{name} is not configured")
     return value
 
@@ -198,7 +199,13 @@ def _is_loopback_request(request: Request) -> bool:
 
 def _role_record(login: str, settings: AuthenticationSettings) -> dict[str, object]:
     try:
-        table = boto3.resource("dynamodb", region_name=settings.region).Table(settings.user_roles_table)
+        connection = load_settings().environment
+        table = boto3.resource(
+            "dynamodb",
+            region_name=settings.region,
+            aws_access_key_id=connection.ACCESS_KEY.get_secret_value(),
+            aws_secret_access_key=connection.SECRET_KEY.get_secret_value(),
+        ).Table(settings.user_roles_table)
         response = table.query(
             KeyConditionExpression=Key("user_id").eq(login),
             FilterExpression=Attr("record_status").eq("active"),
